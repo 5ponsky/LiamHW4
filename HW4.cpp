@@ -11,6 +11,7 @@ class LinkedList {
 public:
     LinkedList();
     ~LinkedList();
+    explicit LinkedList(size_t n);
 
     // methods
     bool isEmpty() const;
@@ -26,8 +27,6 @@ public:
     void push_front(const element_type& x);
     void sort();
 
-    //typedef element_type& reference;
-    //explicit linkedlist(size_t n);
     void check() const;
     void rcheck() const;
 
@@ -40,7 +39,6 @@ private:
     Node* head;
     Node* tail;
     Node* current;
-    Node* previous;
     size_t numElements;
 };
 
@@ -64,6 +62,21 @@ LinkedList::~LinkedList() {
     head->prev = nullptr;
 }
 
+LinkedList::LinkedList(size_t n) {
+    numElements = 0;
+    head = new Node;
+    tail = new Node;
+
+    tail->next = nullptr;
+    tail->prev = head;
+
+    head->next = tail;
+    head->prev = nullptr;
+    for(int i = 0; i < n; ++i) {
+        push_back(i);
+    }
+}
+
 bool LinkedList::isEmpty() const {
     if(head->next == tail)
         return true;
@@ -72,9 +85,17 @@ bool LinkedList::isEmpty() const {
 
 void LinkedList::clear() {
     current = head->next;
+    Node* nodeToDelete = nullptr;
     while(current != nullptr) {
-            current->elem = 0;
+            nodeToDelete = current;
+            current->elem = -1;
+            current->prev = nullptr;
+            current = current->next;
+            nodeToDelete->next = nullptr;
+            delete nodeToDelete;
     }
+    head = nullptr;
+    numElements = 0;
 }
 
 reference LinkedList::back() {
@@ -93,8 +114,15 @@ const_reference LinkedList::front() const {
     return head->next->elem;
 }
 
-LinkedList& LinkedList::operator=(const LinkedList& ll) { ///NEED
-    //this->elem = ll.
+LinkedList& LinkedList::operator=(const LinkedList& ll) {
+    current = ll.head;
+    if(this != &ll) {
+        clear();
+        while(current != nullptr) {
+        push_back(current->elem);
+        current = current->next;
+        }
+    }
 }
 
 void LinkedList::pop_back() {
@@ -109,25 +137,33 @@ void LinkedList::pop_front() {
     delete current;
 }
 
-void LinkedList::push_back(const element_type& tailNode) { ///NEED
+void LinkedList::push_back(const element_type& x) {
     Node* newNode = new Node();
-    newNode->elem = tailNode.elem;
-
+    newNode->elem = x;
+    newNode->next = tail;
+    newNode->prev = tail->prev;
+    tail->prev->next = newNode;
+    tail->prev = newNode;
 }
 
-void LinkedList::push_front(const element_type& headNode) { ///NEED
-
+void LinkedList::push_front(const element_type& x) {
+    Node* newNode = new Node();
+    newNode->elem = x;
+    newNode->prev = head;
+    newNode->next = head->next;
+    head->next->prev = newNode;
+    head->next = newNode;
 }
 
 void LinkedList::sort() {
-    if(head == tail)
+    if(head->next == tail)
         return;
 
     Node* i = nullptr;
     element_type swapValue;
     while(current != nullptr) {
-        for(i = head->next; i != nullptr; i = i->next) {
-            if(current->elem > i-> elem) {
+        for(i = current->next; i != nullptr; i = i->next) {
+            if(current->elem > i->elem) {
                 swapValue = current->elem;
                 current->elem = i->elem;
                 i->elem = swapValue;
@@ -135,7 +171,6 @@ void LinkedList::sort() {
         }
         current = current->next;
     }
-
 }
 
 void LinkedList::check() const {
