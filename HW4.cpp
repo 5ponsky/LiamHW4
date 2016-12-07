@@ -85,17 +85,18 @@ bool LinkedList::isEmpty() const {
 }
 
 void LinkedList::clear() {
-    current = head->next;
+    Node* t = head->next;
     Node* nodeToDelete;
-    while(current->next != nullptr) {
-            nodeToDelete = current;
-            current->elem = -1;
-            current->prev = nullptr;
-            current = current->next;
+    while(t->next != nullptr) {
+            nodeToDelete = t;
+            t->elem = -1;
+            t->prev = nullptr;
+            t = t->next;
             nodeToDelete->next = nullptr;
             delete nodeToDelete;
     }
     head->next = tail;
+    tail->prev = head;
     numElements = 0;
 }
 
@@ -115,29 +116,30 @@ const_reference LinkedList::front() const {
     return head->next->elem;
 }
 
-LinkedList& LinkedList::operator=(const LinkedList& ll) {
-    current = ll.head->next;
-    if(this != &ll) {
+LinkedList& LinkedList::operator=(const LinkedList& listToCopy) {
+    Node* t = listToCopy.head->next;
+    if(this != &listToCopy) {
         clear();
-        while(current->next != nullptr) {
-            push_back(current->elem);
-            current = current->next;
-            cout << "wee" << endl;
+        while(t->next != nullptr) {
+            push_back(t->elem);
+            t = t->next;
         }
     }
 }
 
 void LinkedList::pop_back() {
-    current = tail;
-    tail = tail->prev;
-    delete current;
+    Node* t = tail->prev;
+    tail->prev = tail->prev->prev;
+    tail->prev->next = tail;
+    delete t;
     --numElements;
 }
 
 void LinkedList::pop_front() {
-    current = head;
-    head = head->next;
-    delete current;
+    Node* t = head->next;
+    head->next = head->next->next;
+    head->next->prev = head;
+    delete t;
     --numElements;
 }
 
@@ -165,17 +167,18 @@ void LinkedList::sort() {
     if(head->next == tail)
         return;
 
-    Node* i = nullptr;
+    Node* i;
+    Node* t = head->next;
     element_type swapValue;
-    while(current != nullptr) {
-        for(i = current->next; i != nullptr; i = i->next) {
-            if(current->elem > i->elem) {
-                swapValue = current->elem;
-                current->elem = i->elem;
+    while(t != nullptr) {
+        for(i = t->next; i != nullptr; i = i->next) {
+            if(t->elem > i->elem) {
+                swapValue = t->elem;
+                t->elem = i->elem;
                 i->elem = swapValue;
             }
         }
-        current = current->next;
+        t = t->next;
     }
 }
 
@@ -262,9 +265,32 @@ int main() {
     list3a.push_back(7);
     list3a.push_back(34);
 
+    //Operator Overloading
     list1a = list3a;
 
     list1a.check();
+    list1a.rcheck();
+
+
+
+    //Pop methods
+    list1a.pop_front();
+    list1a.check();
+    list1a.rcheck();
+
+    list1a.pop_back();
+    list1a.check();
+    list1a.rcheck();
+
+    //Sort
+    list1a.push_back(12);
+    list1a.push_back(4);
+    list1a.push_back(1);
+    list1a.push_back(23);
+
+    list1a.sort();
+    list1a.check();
+    list1a.rcheck();
 
     return 0;
 
