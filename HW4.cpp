@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <list>
 using namespace std;
 
 typedef int element_type;
@@ -85,8 +86,8 @@ bool LinkedList::isEmpty() const {
 
 void LinkedList::clear() {
     current = head->next;
-    Node* nodeToDelete = nullptr;
-    while(current != nullptr) {
+    Node* nodeToDelete;
+    while(current->next != nullptr) {
             nodeToDelete = current;
             current->elem = -1;
             current->prev = nullptr;
@@ -94,7 +95,7 @@ void LinkedList::clear() {
             nodeToDelete->next = nullptr;
             delete nodeToDelete;
     }
-    head = nullptr;
+    head->next = tail;
     numElements = 0;
 }
 
@@ -115,12 +116,13 @@ const_reference LinkedList::front() const {
 }
 
 LinkedList& LinkedList::operator=(const LinkedList& ll) {
-    current = ll.head;
+    current = ll.head->next;
     if(this != &ll) {
         clear();
-        while(current != nullptr) {
-        push_back(current->elem);
-        current = current->next;
+        while(current->next != nullptr) {
+            push_back(current->elem);
+            current = current->next;
+            cout << "wee" << endl;
         }
     }
 }
@@ -129,12 +131,14 @@ void LinkedList::pop_back() {
     current = tail;
     tail = tail->prev;
     delete current;
+    --numElements;
 }
 
 void LinkedList::pop_front() {
     current = head;
     head = head->next;
     delete current;
+    --numElements;
 }
 
 void LinkedList::push_back(const element_type& x) {
@@ -144,6 +148,7 @@ void LinkedList::push_back(const element_type& x) {
     newNode->prev = tail->prev;
     tail->prev->next = newNode;
     tail->prev = newNode;
+    ++numElements;
 }
 
 void LinkedList::push_front(const element_type& x) {
@@ -153,6 +158,7 @@ void LinkedList::push_front(const element_type& x) {
     newNode->next = head->next;
     head->next->prev = newNode;
     head->next = newNode;
+    ++numElements;
 }
 
 void LinkedList::sort() {
@@ -174,8 +180,10 @@ void LinkedList::sort() {
 }
 
 void LinkedList::check() const {
-    Node* t = head;
-    while(t != nullptr) {
+    Node* t = head->next;
+    if(head->next == tail)
+        return;
+    while(t->next != nullptr) {
         cout << t->elem << endl;
         t = t->next;
     }
@@ -183,8 +191,10 @@ void LinkedList::check() const {
 }
 
 void LinkedList::rcheck() const {
-    Node* t = tail;
-    while(t != nullptr) {
+    Node* t = tail->prev;
+    if(tail->prev == head)
+        return;
+    while(t->prev != nullptr) {
         cout << t->elem << endl;
         t = t->prev;
     }
@@ -194,5 +204,73 @@ void LinkedList::rcheck() const {
 
 int main() {
 
+    // Demonstrating default constructor
+    list<int> list1;
+    LinkedList list1a;
+
+    // Explicit "constructor"
+    list<int> list2(3);
+    LinkedList list2a(3);
+
+
+    //Checking Empty/Non-empty status
+    if(list1.empty())
+        cout << "Classic List Empty\n";
+    if(list1a.isEmpty())
+        cout << "Re-implementation list empty\n";
+
+    if(list2.empty())
+        cout << "Classic List Empty\n";
+    if(list2a.isEmpty())
+        cout << "Re-implementation list empty\n";
+
+    //Checking push_front, push_back
+    list1.push_back(3);
+    list1.push_back(10);
+    list1.push_back(5);
+    list1.push_front(7);
+
+    list1a.push_back(3);
+    list1a.push_back(10);
+    list1a.push_back(5);
+    list1a.push_front(7);
+
+    //Checking Print functions
+    list1a.check(); // Did everything append and prepend properly?
+    list1a.rcheck();
+
+    cout << "Front of list: " << list1a.front() << endl;
+    cout << "Back of list: " << list1a.back() << endl;
+
+    //Check clear
+    if(!list1.empty())
+        cout << "Classic List NOT Empty\n";
+    if(!list1a.isEmpty())
+        cout << "Re-implementation list NOT empty\n";
+
+    list1.clear();
+    list1a.clear();
+
+    if(list1.empty())
+        cout << "Classic List Empty\n";
+    if(list1a.isEmpty())
+        cout << "Re-implementation list empty\n";
+
+    LinkedList list3a;
+    list3a.push_back(10);
+    list3a.push_back(6);
+    list3a.push_back(7);
+    list3a.push_back(34);
+
+    list1a = list3a;
+
+    list1a.check();
+
     return 0;
+
 }
+
+
+
+
+
